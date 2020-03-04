@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chat Sistema Distribuido</title>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/socket.io.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <form id="chat">
+
+           <label for="user">Usuário: </label> <input type="text" id="user" autocomplete="off" name="username" placeholder="Digite seu usuário">
+                <div class="messages"></div>
+           <label for="msg">Mensagem: </label>
+           <textarea name="message" autocomplete="off" id="msg" cols="30" rows="10"></textarea>
+            <button type="submit" id="enviar">Enviar</button>
+
+    </form>
+
+    
+    <script type="text/javascript">
+        var socket = io('http://localhost:3000');
+
+        // Obtém a data/hora atual
+        var data = new Date();
+
+        // Guarda cada pedaço em uma variável
+        var dia     = data.getDate();           // 1-31
+        var dia_sem = data.getDay();            // 0-6 (zero=domingo)
+        var mes     = data.getMonth();          // 0-11 (zero=janeiro)
+        var ano2    = data.getYear();           // 2 dígitos
+        var ano4    = data.getFullYear();       // 4 dígitos
+        var hora    = data.getHours();          // 0-23
+        var min     = data.getMinutes();        // 0-59
+        var seg     = data.getSeconds();        // 0-59
+        //var mseg    = data.getMilliseconds();   // 0-999
+        //var tz      = data.getTimezoneOffset(); // em minutos
+
+        // Formata a data e a hora (note o mês + 1)
+        //var str_data = dia + '/' + (mes+1) + '/' + ano4;
+        var str_hora = hora + ':' + min + ':' + seg;
+
+        //alert(str_hora);
+
+        function renderMessage(message){
+            $('.messages').append('<div class="message"><strong>'+ message.author +'</strong> <em>enviou mensagem as '+str_hora+'</em>:<br/>&nbsp&nbsp'+ message.message +'</div>');
+        };
+
+        socket.on('previousMessages', function(messages){
+            for(message of messages){
+                renderMessage(message);
+            };
+        });
+
+        socket.on('receivedMessage', function(message){
+            renderMessage(message);
+        });
+
+        $('#chat').submit(function(event){
+            event.preventDefault();
+
+            var author = $('input[name=username]').val();
+            var message = $('textarea[name=message]').val();
+
+            if(author.length && message.length){
+                var messageObject = {
+                    author: author,
+                    message: message,                    
+                };
+                $(document).attr('title', author+': '+message);
+                    //Após o carregamento da página
+                    document.addEventListener('DOMContentLoaded', function () {
+                    
+                    //Se não tiver suporte a Notification manda um alert para o usuário
+                    if (!Notification) {
+                    alert('As notificações da área de trabalho não estão disponíveis no seu navegador.'); 
+                    return;
+                    }
+                    
+                    //Se não tem permissão, solicita a autorização do usuário
+                    if (Notification.permission !== "granted")
+                    Notification.requestPermission();
+                    });
+                    
+                    var notification = new Notification(author+' Mandou mensagem:', {
+                    icon: 'http://i.stack.imgur.com/dmHl0.png',
+                    body: message,
+                    });                 
+                //socket.attr.emit('title', 'teste')
+                /* socket.Notification(author, {
+                    icon: 'http://i.stack.imgur.com/dmHl0.png',
+                    body: message,
+                }); */
+                renderMessage(messageObject);
+                socket.emit('sendMessage', messageObject);
+            }
+        });
+    </script>
+
+    <script type="text/javascript">
+    
+/*         $(document).ready(function(){
+
+            $('#enviar').click(function(){
+                $('#msg').val('');
+            });
+
+        });
+ */
+    </script>
+</body>
+</html>
