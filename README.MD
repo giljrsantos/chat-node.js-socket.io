@@ -26,4 +26,4 @@ Após baixar a pasta `chat_`, na pasta raiz da aplicação, caso esteja usando o
 
 Após rodar o comando acima, no terminal do [ **Visual Studio Code** ] rodar o seguinte comando `nodemon server.js` ou `node server.js`
 
-Após realizar este comando, abrir o navegador e entrar no endereço (`http://localhost:3300`).
+Após realizar este comando, abrir o navegador e entrar no endereço (`http://localhost:3000`).
